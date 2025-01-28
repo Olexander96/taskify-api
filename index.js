@@ -7,13 +7,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const MONGO_URI = process.env.MONGO_URI;
 
-const client = new MongoClient(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  ssl: true,
-  tls: true,
-  tlsAllowInvalidCertificates: false,
-});
+const client = new MongoClient(MONGO_URI);
 
 const app = express();
 app.use(express.json());
