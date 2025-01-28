@@ -21,7 +21,15 @@ let isConnected = false;
 
 (async () => {
   try {
-    await client.connect();
+    await client.connect({
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      ssl: true,
+      sslValidate: true,
+      // Додайте ці параметри для вирішення проблеми з TLS
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+    });
     isConnected = true;
     console.log('Connected to MongoDB');
   } catch (err) {
