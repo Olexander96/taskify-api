@@ -5,37 +5,39 @@ const { MongoClient } = require('mongodb');
 const dotenv = require('dotenv');
 
 dotenv.config();
-//uri
 const MONGO_URI = process.env.MONGO_URI;
 
-const client = new MongoClient(MONGO_URI);
+const client = new MongoClient(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  ssl: true,
+  tls: true,
+  tlsAllowInvalidCertificates: false,
+});
 
 const app = express();
-//Request format to json
 app.use(express.json());
-//All CORS
 app.use(cors());
 
-// Routes// Підключення до MongoDB поза роутами
 let isConnected = false;
 
-(async () => {
+async function connectToDatabase() {
   try {
-    await client.connect({
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      ssl: true,
-      sslValidate: true,
-      // Додайте ці параметри для вирішення проблеми з TLS
-      tls: true,
-      tlsAllowInvalidCertificates: false,
-    });
+    await client.connect();
     isConnected = true;
     console.log('Connected to MongoDB');
   } catch (err) {
     console.error('Error connecting to MongoDB:', err);
+    process.exit(1); // Завершуємо процес при помилці підключення
   }
-})();
+}
+
+// Підключаємось до бази даних перед запуском сервера
+connectToDatabase().then(() => {
+  app.listen(port, () => {
+    console.log(`Server was started on ${port} port`);
+  });
+});
 
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'Hello from Taskify server!' });
@@ -44,7 +46,6 @@ app.get('/', (req, res) => {
 app.get('/get-tasks', async (req, res) => {
   try {
     if (!isConnected) {
-      console.error('Database connection is not initialized.');
       return res.status(500).json({ message: 'Database connection error' });
     }
 
@@ -58,7 +59,4 @@ app.get('/get-tasks', async (req, res) => {
   }
 });
 
-// Інші маршрути залишаються незмінними
-
 const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(`Server was started on ${port} port`));
