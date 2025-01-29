@@ -1,56 +1,27 @@
 //modules
 const express = require('express');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
-const dotenv = require('dotenv');
 
-dotenv.config();
-const MONGO_URI = process.env.MONGO_URI;
-
-const client = new MongoClient(MONGO_URI);
+//controllers
+const { indexController } = require('./controllers/indexController');
+const { getTasksController } = require('./controllers/getTasksController');
+const { addTaskController } = require('./controllers/addTaskController');
+const { updateTaskController } = require('./controllers/updateTaskController');
+const { deleteTaskController } = require('./controllers/deleteTaskController');
 
 const app = express();
+//Request format to json
 app.use(express.json());
+//All CORS
 app.use(cors());
 
-let isConnected = false;
-
-async function connectToDatabase() {
-  try {
-    await client.connect();
-    isConnected = true;
-    console.log('Connected to MongoDB');
-  } catch (err) {
-    console.error('Error connecting to MongoDB:', err);
-    process.exit(1); // Завершуємо процес при помилці підключення
-  }
-}
-
-// Підключаємось до бази даних перед запуском сервера
-connectToDatabase().then(() => {
-  app.listen(port, () => {
-    console.log(`Server was started on ${port} port`);
-  });
-});
-
-app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Hello from Taskify server!' });
-});
-
-app.get('/get-tasks', async (req, res) => {
-  try {
-    if (!isConnected) {
-      return res.status(500).json({ message: 'Database connection error' });
-    }
-
-    const database = client.db('Taskify');
-    const coll = database.collection('all_tasks');
-    const tasks = await coll.find().toArray();
-    res.json(tasks);
-  } catch (err) {
-    console.error('Error during /get-tasks execution:', err);
-    res.status(500).json({ message: 'Failed to get tasks' });
-  }
-});
+// Routes
+app.get('/', indexController); //for root
+app.get('/get-tasks', getTasksController);
+app.post('/add-task', addTaskController);
+app.patch('/update-task', updateTaskController);
+app.delete('/delete-task', deleteTaskController);
 
 const port = process.env.PORT || 5000;
+
+app.listen(port, () => console.log(`Server was started on ${port} port`));

@@ -3,8 +3,7 @@ const dotenv = require('dotenv');
 //.env
 dotenv.config();
 //uri
-const MONGO_URI =
-  'mongodb+srv://osheiko96:niuuXvNEOGMoi2YI@cluster0.de9vu.mongodb.net/?retryWrites=true&writeConcern=majority';
+const MONGO_URI = process.env.MONGO_URI;
 const client = new MongoClient(MONGO_URI);
 
 module.exports = { client };
