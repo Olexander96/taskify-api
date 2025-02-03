@@ -37,6 +37,3 @@ Node.js and Express.js backend service for Taskify application, providing RESTfu
 
 ## Author 👤
 Oleksandr Sheiko
-
-## License 📄
-MIT License
